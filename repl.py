@@ -1,9 +1,19 @@
 #!/usr/bin/env python2
 import sys
 from parser import parse
-from interpreter import interpret
+from interpreter import Interpreter
+import traceback
 
-globalScope = {}
+interpreter = Interpreter()
+
+def dump_error(exc):
+    e, value, tb = exc
+
+    print e
+    print value
+    for line in traceback.format_tb(tb):
+        print line
+
 while True:
     code = raw_input("> ")
     if code == "quit" or code == "q" or code == "die":
@@ -11,10 +21,10 @@ while True:
     try:
         ast = parse(code)
         try:
-            interpret(ast)
+            interpreter.interpret(ast)
         except:
-            e = sys.exc_info()[0]
-            print "Error interpreting:",e
+            print "Error interpreting"
+            dump_error(sys.exc_info())
     except:
-        e = sys.exc_info()[0]
-        print "Error parsing:",e
+        print "Error parsing"
+        dump_error(sys.exc_info())

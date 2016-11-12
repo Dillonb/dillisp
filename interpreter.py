@@ -1,6 +1,3 @@
-def do_print(vals):
-    print(" ".join(vals))
-
 stdlib = {
     '*': lambda args: reduce(lambda a,b: a*b, args),
     '/': lambda args: reduce(lambda a,b: a/b, args),
@@ -9,6 +6,9 @@ stdlib = {
     'print': lambda args: do_print(args),
     'input': lambda args: apply(input, args)
 }
+
+def do_print(vals):
+    print(" ".join(map(str, vals)))
 
 def get_from_scope(identifier, scope):
     if identifier in scope:
@@ -36,8 +36,7 @@ def eval_expression(expression, parentScope = {}):
     else:
         return expression
 
-def interpret(ast):
+def interpret(ast, globalScope={}):
     """Interprets an AST"""
-    globalScope = {}
     for expression in ast:
         print eval_expression(expression, globalScope)

@@ -9,8 +9,10 @@ def read_token(code):
         while len(remaining) > 0 and remaining[0] != ")":
             token, remaining = read_token(remaining)
             tokens.append(token)
+            remaining = remaining.lstrip()
 
-            remaining = remaining[1:]
+        if len(remaining) > 0 and remaining[0] == ")":
+            remaining = remaining[1:].lstrip()
 
         return tokens, remaining
     elif code[0] == "\"":

@@ -9,8 +9,15 @@ stdlib = {
     'print': lambda args, parentScope: do_print(eval_arguments(args, parentScope)),
     'input': lambda args, parentScope: apply(input, eval_arguments(args, parentScope)),
     'lambda': lambda args, parentScope: do_lambda(args),
-    'define': lambda args, parentScope: do_define(args, parentScope)
+    'define': lambda args, parentScope: do_define(args, parentScope),
+    'if': lambda args, parentScope: do_if(args, parentScope)
 }
+
+def do_if(args, parentScope):
+    if eval_expression(args[0]):
+        return args[1]
+    else:
+        return args[2]
 
 def greater_than(args, parentScope):
     last = float('inf')

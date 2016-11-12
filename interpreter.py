@@ -3,11 +3,32 @@ stdlib = {
     '/': lambda args, parentScope: reduce(lambda a,b: a/b, eval_arguments(args, parentScope)),
     '+': lambda args, parentScope: reduce(lambda a,b: a+b, eval_arguments(args, parentScope)),
     '-': lambda args, parentScope: reduce(lambda a,b: a-b, eval_arguments(args, parentScope)),
+    '>': lambda args, parentScope: greater_than(args, parentScope),
+    '<': lambda args, parentScope: less_than(args, parentScope),
+    '=': lambda args, parentScope: reduce(lambda a,b: a==b, eval_arguments(args, parentScope)),
     'print': lambda args, parentScope: do_print(eval_arguments(args, parentScope)),
     'input': lambda args, parentScope: apply(input, eval_arguments(args, parentScope)),
     'lambda': lambda args, parentScope: do_lambda(args),
     'define': lambda args, parentScope: do_define(args, parentScope)
 }
+
+def greater_than(args, parentScope):
+    last = float('inf')
+    for val in args:
+        val = eval_expression(val)
+        if not last > val:
+            return False
+        last = val
+    return True
+
+def less_than(args, parentScope):
+    last = float('-inf')
+    for val in args:
+        val = eval_expression(val)
+        if not last < val:
+            return False
+        last = val
+    return True
 
 def eval_arguments(args, parentScope):
     newArgs = []

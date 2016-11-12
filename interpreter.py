@@ -1,6 +1,7 @@
 from parser import parse
 import math
 import numbers
+import sys
 
 consts = {
     'None': None,
@@ -51,7 +52,7 @@ def do_if(args, parentScope):
     if eval_expression(args[0], parentScope):
         return eval_expression(args[1], parentScope)
     else:
-        return eval_expression(args[2])
+        return eval_expression(args[2], parentScope)
 
 def greater_than(args, parentScope):
     last = float('inf')
@@ -81,15 +82,23 @@ class Function:
     def __init__(self, argList, expr):
         self.argList = argList
         self.expr = expr
+        self.memoizationTable = {}
 
     def eval(self, args, parentScope):
         scope = {}
         scope['__parent__'] = parentScope
 
-        for name, val in zip(self.argList, args):
-            scope[name] = eval_expression(val, scope)
+        args = map(lambda arg: eval_expression(arg, scope), args)
 
-        return eval_expression(self.expr, scope)
+        for name, val in zip(self.argList, args):
+            scope[name] = val
+
+        if tuple(args) in self.memoizationTable:
+            return self.memoizationTable[tuple(args)]
+
+        result = eval_expression(self.expr, scope)
+        self.memoizationTable[tuple(args)] = result
+        return result
 
 def do_lambda(args):
     return Function(args[0], args[1])
@@ -124,7 +133,7 @@ def eval_function(func, args, parentScope = {}):
         if from_scope is not None:
             return from_scope.eval(args, parentScope)
 
-def eval_expression(expression, scope = {}):
+def eval_expression(expression, scope):
     if isinstance(expression, list):
         result = eval_function(expression[0], expression[1:], scope)
     else:
@@ -141,6 +150,7 @@ def eval_expression(expression, scope = {}):
 
 class Interpreter:
     def __init__(self, globalScope = {}):
+        sys.setrecursionlimit(20000)
         self.globalScope = globalScope
         self.silent_interpret(parse(open("stdlib.l").read()))
 

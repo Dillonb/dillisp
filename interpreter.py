@@ -191,3 +191,6 @@ class Interpreter:
         """Interprets an AST"""
         for expression in ast:
             print eval_expression(expression, self.globalScope)
+
+    def interpret_and_return(self, ast):
+        return map(lambda expr: eval_expression(expr, self.globalScope), ast)

@@ -1,4 +1,4 @@
-from parser import parse
+from parser import parse, unparse
 import math
 import numbers
 import sys
@@ -7,7 +7,9 @@ consts = {
     'None': None,
     'pi': math.pi,
     'True': True,
-    'False': False
+    'true': True,
+    'False': False,
+    'false': False
 }
 
 builtins = {
@@ -29,6 +31,9 @@ builtins = {
     'or': lambda args, parentScope: reduce(lambda a,b: a or b, eval_arguments(args, parentScope)),
     'not': lambda args, parentScope: not eval_arguments(args, parentScope)[0],
     'list': lambda args, parentScope: eval_arguments(args, parentScope),
+    'head': lambda args, parentScope: eval_arguments(args, parentScope)[0][0],
+    'tail': lambda args, parentScope: eval_arguments(args, parentScope)[0][1:],
+    'last': lambda args, parentScope: eval_arguments(args, parentScope)[0][-1],
     'map': lambda args, parentScope: do_map(args, parentScope),
     'reduce': lambda args, parentScope: do_reduce(args, parentScope),
     'filter': lambda args, parentScope: do_filter(args, parentScope)
@@ -105,6 +110,9 @@ class Function:
 
         return eval_expression(self.expr, scope)
 
+    def __str__(self):
+        return "(lambda %s %s)" % (unparse(self.argList), unparse(self.expr) )
+
 class MemoizedFunction(Function):
     def __init__(self, argList, expr):
         Function.__init__(self, argList, expr)
@@ -141,7 +149,7 @@ def do_define(args, parentScope):
 
     parentScope[args[0]] = eval_expression(args[1], parentScope)
 
-    return args[1]
+    return eval_expression(args[1], parentScope)
 
 def do_print(vals):
     print(" ".join(map(str, vals)))

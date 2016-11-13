@@ -45,3 +45,13 @@ def parse(code):
         tokens.append(token)
         if remaining == "":
             return tokens
+
+def unparse(code):
+    val = "("
+    for i in code:
+        if isinstance(i, list):
+            val += unparse(i)
+        else:
+            val += "%s " % str(i)
+
+    return val + ")"

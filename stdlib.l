@@ -8,3 +8,4 @@
 (define nand (lambda (x y) (not (and x y))))
 (define >= (lambda (x y) (or (> x y) (= x y))))
 (define <= (lambda (x y) (or (< x y) (= x y))))
+(define repeat (lambda (token number) (if (= number 0) (list) (+ (list token) (repeat token (- number 1))))))

@@ -47,11 +47,15 @@ def parse(code):
             return tokens
 
 def unparse(code):
-    val = "("
-    for i in code:
-        if isinstance(i, list):
-            val += unparse(i)
-        else:
-            val += "%s " % str(i)
+    if isinstance(code, list):
+        val = "("
+        for i in code:
+            if isinstance(i, list):
+                val += unparse(i)
+            else:
+                val += "%s " % str(i)
 
-    return val + ")"
+        return val + ")"
+
+    else:
+        return str(code)

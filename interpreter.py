@@ -1,7 +1,9 @@
 from parser import parse, unparse
+
 import math
 import numbers
 import sys
+from itertools import izip_longest
 
 consts = {
     'None': None,
@@ -105,8 +107,15 @@ class Function:
 
         args = map(lambda arg: eval_expression(arg, scope), args)
 
-        for name, val in zip(self.argList, args):
-            scope[name] = val
+        extra = []
+
+        for name, val in izip_longest(self.argList, args):
+            if name is not None:
+                scope[name] = val
+            else:
+                extra.append(val)
+
+        scope['...'] = extra
 
         return eval_expression(self.expr, scope)
 
@@ -124,8 +133,15 @@ class MemoizedFunction(Function):
 
         args = map(lambda arg: eval_expression(arg, scope), args)
 
-        for name, val in zip(self.argList, args):
-            scope[name] = val
+        extra = []
+
+        for name, val in izip_longest(self.argList, args):
+            if name is not None:
+                scope[name] = val
+            else:
+                extra.append(val)
+
+        scope['...'] = extra
 
         if tuple(args) in self.memoizationTable:
             return self.memoizationTable[tuple(args)]
@@ -198,7 +214,9 @@ class Interpreter:
     def interpret(self, ast):
         """Interprets an AST"""
         for expression in ast:
-            print eval_expression(expression, self.globalScope)
+            result = eval_expression(expression, self.globalScope)
+            if result is not None:
+                print(result)
 
     def interpret_and_return(self, ast):
         return map(lambda expr: eval_expression(expr, self.globalScope), ast)

@@ -5,7 +5,9 @@ import sys
 
 consts = {
     'None': None,
-    'pi': math.pi
+    'pi': math.pi,
+    'True': True,
+    'False': False
 }
 
 builtins = {
@@ -13,19 +15,22 @@ builtins = {
     '/': lambda args, parentScope: reduce(lambda a,b: a/b, eval_arguments(args, parentScope)),
     '+': lambda args, parentScope: reduce(lambda a,b: a+b, eval_arguments(args, parentScope)),
     '-': lambda args, parentScope: reduce(lambda a,b: a-b, eval_arguments(args, parentScope)),
+    '%': lambda args, parentScope: reduce(lambda a,b: a%b, eval_arguments(args, parentScope)),
     '>': lambda args, parentScope: greater_than(args, parentScope),
     '<': lambda args, parentScope: less_than(args, parentScope),
     '=': lambda args, parentScope: reduce(lambda a,b: a==b, eval_arguments(args, parentScope)),
     'print': lambda args, parentScope: do_print(eval_arguments(args, parentScope)),
     'input': lambda args, parentScope: apply(input, eval_arguments(args, parentScope)),
     'lambda': lambda args, parentScope: do_lambda(args),
+    'memoized-lambda': lambda args, parentScope: do_memoized_lambda(args),
     'define': lambda args, parentScope: do_define(args, parentScope),
     'if': lambda args, parentScope: do_if(args, parentScope),
     'and': lambda args, parentScope: reduce(lambda a,b: a and b, eval_arguments(args, parentScope)),
     'or': lambda args, parentScope: reduce(lambda a,b: a or b, eval_arguments(args, parentScope)),
+    'not': lambda args, parentScope: not eval_arguments(args, parentScope)[0],
     'list': lambda args, parentScope: eval_arguments(args, parentScope),
     'map': lambda args, parentScope: do_map(args, parentScope),
-    'reduce': None,
+    'reduce': lambda args, parentScope: do_reduce(args, parentScope),
     'filter': lambda args, parentScope: do_filter(args, parentScope)
 }
 
@@ -47,6 +52,12 @@ def do_filter(args, parentScope):
             result.append(item)
 
     return result
+
+def do_reduce(args, parentScope):
+    func = eval_expression(args[0], parentScope)
+    l = eval_expression(args[1], parentScope)
+
+    return reduce(lambda a,b: func.eval([a,b], parentScope), l)
 
 def do_if(args, parentScope):
     if eval_expression(args[0], parentScope):
@@ -82,6 +93,21 @@ class Function:
     def __init__(self, argList, expr):
         self.argList = argList
         self.expr = expr
+
+    def eval(self, args, parentScope):
+        scope = {}
+        scope['__parent__'] = parentScope
+
+        args = map(lambda arg: eval_expression(arg, scope), args)
+
+        for name, val in zip(self.argList, args):
+            scope[name] = val
+
+        return eval_expression(self.expr, scope)
+
+class MemoizedFunction(Function):
+    def __init__(self, argList, expr):
+        Function.__init__(self, argList, expr)
         self.memoizationTable = {}
 
     def eval(self, args, parentScope):
@@ -102,6 +128,9 @@ class Function:
 
 def do_lambda(args):
     return Function(args[0], args[1])
+
+def do_memoized_lambda(args):
+    return MemoizedFunction(args[0], args[1])
 
 def do_define(args, parentScope):
     if len(args) != 2:

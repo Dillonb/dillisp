@@ -12,3 +12,4 @@
 (define pow (lambda (b e) (reduce (lambda (a b) (* a b)) (repeat b e))))
 (define list (lambda () ...))
 (define range (lambda (a b) (if (>= a b) (list) (+ (list a) (range (+ a 1) b)))))
+(define do (lambda () (last ...)))

@@ -17,7 +17,11 @@ def dump_error(exc):
 if len(sys.argv) < 2:
     print "Usage: %s <script>"%sys.argv[0]
 else:
-    code = open(sys.argv[1]).read()
+    lines = map(lambda line: line.strip(), open(sys.argv[1]).readlines())
+    # Remove comments
+    lines = filter(lambda line: line[:3] != ";;;", lines)
+    code = " ".join(lines)
+
     try:
         ast = parse(code)
         try:

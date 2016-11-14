@@ -48,14 +48,6 @@ def parse(code):
 
 def unparse(code):
     if isinstance(code, list):
-        val = "("
-        for i in code:
-            if isinstance(i, list):
-                val += unparse(i)
-            else:
-                val += "%s " % str(i)
-
-        return val + ")"
-
+        return "(" + " ".join([unparse(expression) for expression in code]) + ")"
     else:
         return str(code)

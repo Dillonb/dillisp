@@ -9,3 +9,5 @@
 (define >= (lambda (x y) (or (> x y) (= x y))))
 (define <= (lambda (x y) (or (< x y) (= x y))))
 (define repeat (lambda (token number) (if (= number 0) (list) (+ (list token) (repeat token (- number 1))))))
+(define pow (lambda (b e) (reduce (lambda (a b) (* a b)) (repeat b e))))
+(define list (lambda () ...))

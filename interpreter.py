@@ -19,6 +19,7 @@ builtins = {
     '/': lambda args, parentScope: reduce(lambda a,b: a/b, eval_arguments(args, parentScope)),
     '+': lambda args, parentScope: reduce(lambda a,b: a+b, eval_arguments(args, parentScope)),
     '-': lambda args, parentScope: reduce(lambda a,b: a-b, eval_arguments(args, parentScope)),
+    '**': lambda args, parentScope: reduce(lambda a,b: a**b, eval_arguments(args, parentScope)),
     '%': lambda args, parentScope: reduce(lambda a,b: a%b, eval_arguments(args, parentScope)),
     '>': lambda args, parentScope: greater_than(args, parentScope),
     '<': lambda args, parentScope: less_than(args, parentScope),
@@ -32,7 +33,6 @@ builtins = {
     'and': lambda args, parentScope: reduce(lambda a,b: a and b, eval_arguments(args, parentScope)),
     'or': lambda args, parentScope: reduce(lambda a,b: a or b, eval_arguments(args, parentScope)),
     'not': lambda args, parentScope: not eval_arguments(args, parentScope)[0],
-    'list': lambda args, parentScope: eval_arguments(args, parentScope),
     'head': lambda args, parentScope: eval_arguments(args, parentScope)[0][0],
     'tail': lambda args, parentScope: eval_arguments(args, parentScope)[0][1:],
     'last': lambda args, parentScope: eval_arguments(args, parentScope)[0][-1],
@@ -98,7 +98,10 @@ def eval_arguments(args, parentScope):
 
 class Function:
     def __init__(self, argList, expr):
-        self.argList = argList
+        if isinstance(argList, list):
+            self.argList = argList
+        else:
+            self.argList = [argList]
         self.expr = expr
 
     def eval(self, args, parentScope):
@@ -196,6 +199,8 @@ def eval_expression(expression, scope):
             result = expression[1:]
         elif expression in consts:
             result = consts[expression]
+        elif expression in builtins:
+            result = "builtin"
         else:
             result = get_from_scope(expression, scope)
 

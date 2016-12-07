@@ -104,11 +104,11 @@ class Function:
         self.expr = expr
         self.parentScope = parentScope
 
-    def eval(self, args):
+    def eval(self, args, callingScope):
         scope = {}
         scope['__parent__'] = self.parentScope
 
-        args = map(lambda arg: eval_expression(arg, scope), args)
+        args = map(lambda arg: eval_expression(arg, callingScope), args)
 
         extra = []
 
@@ -153,7 +153,7 @@ def eval_function(func, args, parentScope = {}):
     else:
         from_scope = get_from_scope(func, parentScope)
         if from_scope is not None:
-            return from_scope.eval(args)
+            return from_scope.eval(args, parentScope)
 
 def eval_expression(expression, scope):
     if isinstance(expression, list):

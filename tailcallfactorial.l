@@ -6,9 +6,6 @@
 (defn fac (n)
     (facit 1 n))
 
-(print fac)
-(print facit)
-
 (print (fac 1))
 (print (fac 2))
 (print (fac 3))

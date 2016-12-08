@@ -145,6 +145,7 @@ def replace_call_with(code, orig, replacement):
 class TailCallFunction:
     def __init__(self, name, argList, expr, parentScope):
         # Replace all recursive calls with calls to a special function that tells us we're not done - incomplete-tailcall
+        self.origCode = expr
         self.code = replace_call_with(expr, name, 'incomplete-tailcall')
         self.func = Function(argList, self.code, parentScope)
 
@@ -155,6 +156,9 @@ class TailCallFunction:
             result = self.func.eval(result.argList, callingScope)
 
         return result
+
+    def __str__(self):
+        return "(lambda %s %s)" % (unparse(self.func.argList), unparse(self.origCode))
 
 def do_define(args, parentScope):
     if len(args) != 2:

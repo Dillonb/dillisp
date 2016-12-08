@@ -27,6 +27,8 @@ builtins = {
     'print': lambda args, parentScope: do_print(eval_arguments(args, parentScope)),
     'input': lambda args, parentScope: apply(input, eval_arguments(args, parentScope)),
     'lambda': lambda args, parentScope: Function(args[0], args[1], parentScope),
+    'tailcall-lambda': lambda args, parentScope: TailCallFunction(args[0], args[1], args[2], parentScope),
+    'incomplete-tailcall': lambda args, parentScope: IncompleteTailCallRecursion(eval_arguments(args, parentScope)),
     'define': lambda args, parentScope: do_define(args, parentScope),
     'if': lambda args, parentScope: do_if(args, parentScope),
     'and': lambda args, parentScope: reduce(lambda a,b: a and b, eval_arguments(args, parentScope)),
@@ -37,7 +39,9 @@ builtins = {
     'last': lambda args, parentScope: eval_arguments(args, parentScope)[0][-1],
     'map': lambda args, parentScope: do_map(args, parentScope),
     'reduce': lambda args, parentScope: do_reduce(args, parentScope),
-    'filter': lambda args, parentScope: do_filter(args, parentScope)
+    'filter': lambda args, parentScope: do_filter(args, parentScope),
+    'defn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=False),
+    'taildefn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=True)
 }
 
 def do_map(args, parentScope):
@@ -125,6 +129,33 @@ class Function:
     def __str__(self):
         return "(lambda %s %s)" % (unparse(self.argList), unparse(self.expr) )
 
+class IncompleteTailCallRecursion(Function):
+    def __init__(self, argList):
+        self.argList = argList
+
+    def __str__(self):
+        return '('+ ' '.join(map(lambda x: str(x), self.argList)) + ')'
+
+def replace_call_with(code, orig, replacement):
+    if isinstance(code, list) and len(code) > 0:
+        new = replacement if code[0] == orig else code[0]
+        return [new] + map(lambda x: replace_call_with(x, orig, replacement), code[1:])
+    return code
+
+class TailCallFunction:
+    def __init__(self, name, argList, expr, parentScope):
+        # Replace all recursive calls with calls to a special function that tells us we're not done - incomplete-tailcall
+        self.code = replace_call_with(expr, name, 'incomplete-tailcall')
+        self.func = Function(argList, self.code, parentScope)
+
+    def eval(self, args, callingScope):
+        result = self.func.eval(args, callingScope)
+
+        while isinstance(result, IncompleteTailCallRecursion):
+            result = self.func.eval(result.argList, callingScope)
+
+        return result
+
 def do_define(args, parentScope):
     if len(args) != 2:
         raise Exception("Invalid syntax on define call")
@@ -135,6 +166,41 @@ def do_define(args, parentScope):
     parentScope[args[0]] = eval_expression(args[1], parentScope)
 
     return eval_expression(args[1], parentScope)
+
+def function_in_code(nameOfFunction, code):
+    if isinstance(code, list) and len(code) > 0:
+        return code[0] == nameOfFunction or reduce(lambda a,b: a or b, map(lambda x: function_in_code(nameOfFunction, x), code[1:]))
+    return False
+
+def can_tail_call(name, code):
+    if isinstance(code, list) and len(code) > 0:
+        if (code[0] == "if"):
+            # Recurse down through ifs
+            return can_tail_call(name, code[2]) and can_tail_call(name, code[3])
+        else:
+            # If this is a call to our function, and there are no recursive calls within the arguments
+            if code[0] == name:
+                for expr in code[1:]:
+                    if function_in_code(name, expr):
+                        return False
+                return True
+            else:
+                return False
+    return True # This is just an expression, we can return
+
+def do_defn(args, parentScope, forceTailCall):
+    should_tailcall = function_in_code(args[0], args[2])
+    can_tailcall = should_tailcall and can_tail_call(args[0], args[2])
+
+    if (forceTailCall):
+        if not can_tailcall:
+            raise Exception("Function cannot be tail call optimized")
+
+    if can_tailcall:
+        code = [args[0], ['tailcall-lambda' if can_tailcall else 'lambda', args[0], args[1], args[2]]]
+    else:
+        code = [args[0], ['lambda', args[1], args[2]]]
+    do_define(code, parentScope)
 
 def do_print(vals):
     print(" ".join(map(str, vals)))

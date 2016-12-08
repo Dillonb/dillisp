@@ -8,10 +8,9 @@ Lisp implemented in Python. Created by Dillon Beliveau (GET IT?)
 * Lexical Scope
 * First class functions
 * REPL and script support
-
+* Tail-call optimization
 
 ## To do
-* Tail-call optimization
 * Functions for accessing files, the network, etc
 * More list manipulation functions (drop, take, takeWhile, dropWhile, etc)
-* Strings
+* Improved strings

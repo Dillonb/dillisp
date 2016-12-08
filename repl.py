@@ -22,6 +22,8 @@ while True:
         ast = parse(code)
         try:
             interpreter.interpret(ast)
+        except KeyboardInterrupt:
+            print "Aborted: keyboard interrupt"
         except:
             print "Error interpreting"
             dump_error(sys.exc_info())

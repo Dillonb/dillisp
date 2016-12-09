@@ -1,18 +1,10 @@
-(taildefn fib-seq-iter (a b n acc)
-    (if (= n 0)
+(taildefn fib-seq-iter (a b predicate acc)
+    (if (not (predicate a))
         acc
-        (fib-seq-iter (+ a b) a (- n 1) (append acc a))))
+        (fib-seq-iter (+ a b) a predicate (append acc a))))
 
-(defn fib-seq (n) (fib-seq-iter 1 0 n (list)))
+(defn fib-seq (predicate) (fib-seq-iter 1 0 predicate (list)))
 
-(print (reduce (lambda (a b) (+ a b)) (filter even? (fib-seq 33))))
+(defn under-4-million (n) (< n 4000000))
 
-
-;;; Not used, here for reference
-(taildefn fib-iter (a b n)
-    (if (= n 0)
-        b
-        (fib-iter (+ a b) a (- n 1))))
-
-;;; Not used, here for reference
-(defn fib (n) (fib-iter 1 0 n))
+(print (reduce (lambda (a b) (+ a b)) (filter even? (fib-seq under-4-million))))

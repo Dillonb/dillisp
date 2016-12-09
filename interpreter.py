@@ -236,9 +236,7 @@ def eval_expression(expression, scope):
     if isinstance(expression, list):
         result = eval_function(expression[0], expression[1:], scope)
     else:
-        if isinstance(expression, tuple):
-            result = expression
-        elif isinstance(expression, numbers.Number):
+        if isinstance(expression, tuple) or isinstance(expression, numbers.Number) or isinstance(expression, Function) or isinstance(expression, TailCallFunction):
             result = expression
         elif expression[0] == '\'':
             result = expression[1:]

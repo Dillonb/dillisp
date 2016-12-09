@@ -41,8 +41,14 @@ builtins = {
     'reduce': lambda args, parentScope: do_reduce(args, parentScope),
     'filter': lambda args, parentScope: do_filter(args, parentScope),
     'defn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=False),
-    'taildefn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=True)
+    'taildefn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=True),
+    'append': lambda args, parentScope: do_append(eval_arguments(args, parentScope), parentScope)
 }
+
+def do_append(args, parentScope):
+    return args[0] + (args[1],)
+
+
 
 def do_map(args, parentScope):
     func = eval_expression(args[0], parentScope)
@@ -122,7 +128,7 @@ class Function:
             else:
                 extra.append(val)
 
-        scope['...'] = extra
+        scope['...'] = tuple(extra)
 
         return eval_expression(self.expr, scope)
 
@@ -173,7 +179,7 @@ def do_define(args, parentScope):
 
 def function_in_code(nameOfFunction, code):
     if isinstance(code, list) and len(code) > 0:
-        return code[0] == nameOfFunction or reduce(lambda a,b: a or b, map(lambda x: function_in_code(nameOfFunction, x), code[1:]))
+        return code[0] == nameOfFunction or (len(code) > 1 and reduce(lambda a,b: a or b, map(lambda x: function_in_code(nameOfFunction, x), code[1:])))
     return False
 
 def can_tail_call(name, code):
@@ -204,7 +210,8 @@ def do_defn(args, parentScope, forceTailCall):
         code = [args[0], ['tailcall-lambda' if can_tailcall else 'lambda', args[0], args[1], args[2]]]
     else:
         code = [args[0], ['lambda', args[1], args[2]]]
-    do_define(code, parentScope)
+
+    return do_define(code, parentScope)
 
 def do_print(vals):
     print(" ".join(map(str, vals)))
@@ -229,7 +236,9 @@ def eval_expression(expression, scope):
     if isinstance(expression, list):
         result = eval_function(expression[0], expression[1:], scope)
     else:
-        if isinstance(expression, numbers.Number):
+        if isinstance(expression, tuple):
+            result = expression
+        elif isinstance(expression, numbers.Number):
             result = expression
         elif expression[0] == '\'':
             result = expression[1:]

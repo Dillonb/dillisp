@@ -49,14 +49,13 @@ def do_append(args, parentScope):
     return args[0] + (args[1],)
 
 
-
 def do_map(args, parentScope):
     func = eval_expression(args[0], parentScope)
     l = eval_expression(args[1], parentScope)
     result = []
     for item in l:
         result.append(func.eval([item], parentScope))
-    return result
+    return tuple(result)
 
 def do_filter(args, parentScope):
     func = eval_expression(args[0], parentScope)
@@ -67,7 +66,7 @@ def do_filter(args, parentScope):
         if func.eval([item], parentScope):
             result.append(item)
 
-    return result
+    return tuple(result)
 
 def do_reduce(args, parentScope):
     func = eval_expression(args[0], parentScope)

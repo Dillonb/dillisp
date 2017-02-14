@@ -42,7 +42,8 @@ builtins = {
     'filter': lambda args, parentScope: do_filter(args, parentScope),
     'defn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=False),
     'taildefn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=True),
-    'append': lambda args, parentScope: do_append(eval_arguments(args, parentScope), parentScope)
+    'append': lambda args, parentScope: do_append(eval_arguments(args, parentScope), parentScope),
+    'none?': lambda args, parentScope: eval_arguments(args, parentScope)[0] == None
 }
 
 def do_append(args, parentScope):

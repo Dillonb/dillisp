@@ -13,3 +13,7 @@
 (define list (lambda () ...))
 (define range (lambda (a b) (if (>= a b) (list) (+ (list a) (range (+ a 1) b)))))
 (define do (lambda () (last ...)))
+
+(define cons (lambda (x y) (lambda (m) (m x y))))
+(define car (lambda (z) (z (lambda (p q) p))))
+(define cdr (lambda (z) (z (lambda (p q) q))))

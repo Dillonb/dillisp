@@ -18,4 +18,4 @@
 (define car (lambda (z) (z (lambda (p q) p))))
 (define cdr (lambda (z) (z (lambda (p q) q))))
 (define lmap (lambda (f l) (cons (f (car l)) (if (none? (cdr l)) None (lmap f (cdr l))))))
-(define lforeach (lambda (f l) (do (f (car l)) if (none? (cdr l)) None (lforeach f (cdr l)))))
+(define lforeach (lambda (f l) (do (f (car l)) (if (none? (cdr l)) None (lforeach f (cdr l))))))

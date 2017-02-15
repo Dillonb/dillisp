@@ -35,9 +35,6 @@ builtins = {
     'and': lambda args, parentScope: reduce(lambda a,b: a and b, eval_arguments(args, parentScope)),
     'or': lambda args, parentScope: reduce(lambda a,b: a or b, eval_arguments(args, parentScope)),
     'not': lambda args, parentScope: not eval_arguments(args, parentScope)[0],
-    'head': lambda args, parentScope: eval_arguments(args, parentScope)[0][0],
-    'tail': lambda args, parentScope: eval_arguments(args, parentScope)[0][1:],
-    'last': lambda args, parentScope: eval_arguments(args, parentScope)[0][-1],
     'defn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=False),
     'taildefn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=True),
     'none?': lambda args, parentScope: eval_arguments(args, parentScope)[0] == None

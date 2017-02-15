@@ -7,6 +7,7 @@ from itertools import izip_longest
 
 consts = {
     'None': None,
+    'none': None,
     'pi': math.pi,
     'True': True,
     'true': True,
@@ -37,43 +38,10 @@ builtins = {
     'head': lambda args, parentScope: eval_arguments(args, parentScope)[0][0],
     'tail': lambda args, parentScope: eval_arguments(args, parentScope)[0][1:],
     'last': lambda args, parentScope: eval_arguments(args, parentScope)[0][-1],
-    'map': lambda args, parentScope: do_map(args, parentScope),
-    'reduce': lambda args, parentScope: do_reduce(args, parentScope),
-    'filter': lambda args, parentScope: do_filter(args, parentScope),
     'defn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=False),
     'taildefn': lambda args, parentScope: do_defn(args, parentScope, forceTailCall=True),
-    'append': lambda args, parentScope: do_append(eval_arguments(args, parentScope), parentScope),
     'none?': lambda args, parentScope: eval_arguments(args, parentScope)[0] == None
 }
-
-def do_append(args, parentScope):
-    return args[0] + (args[1],)
-
-
-def do_map(args, parentScope):
-    func = eval_expression(args[0], parentScope)
-    l = eval_expression(args[1], parentScope)
-    result = []
-    for item in l:
-        result.append(func.eval([item], parentScope))
-    return tuple(result)
-
-def do_filter(args, parentScope):
-    func = eval_expression(args[0], parentScope)
-    l = eval_expression(args[1], parentScope)
-    result = []
-    for item in l:
-
-        if func.eval([item], parentScope):
-            result.append(item)
-
-    return tuple(result)
-
-def do_reduce(args, parentScope):
-    func = eval_expression(args[0], parentScope)
-    l = eval_expression(args[1], parentScope)
-
-    return reduce(lambda a,b: func.eval([a,b], parentScope), l)
 
 def do_if(args, parentScope):
     if eval_expression(args[0], parentScope):
@@ -168,7 +136,7 @@ class TailCallFunction:
 
 def do_define(args, parentScope):
     if len(args) != 2:
-        raise Exception("Invalid syntax on define call")
+        raise Exception("Invalid syntax on define call, got args: " + str(args))
 
     if args[0] in builtins or args[0] == "__parent__":
         raise Exception("Invalid name! Must not conflict with built-ins or equal __parent__")

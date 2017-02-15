@@ -21,7 +21,7 @@ def read_token(code):
         remaining = code
         token = ""
 
-        while len(remaining) > 0 and remaining[0] != " " and remaining[0] != ")":
+        while len(remaining) > 0 and remaining[0] != " " and remaining[0] != '\n' and remaining[0] != ")":
             token += remaining[0]
             remaining = remaining[1:]
 

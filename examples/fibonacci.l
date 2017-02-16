@@ -5,4 +5,4 @@
                (fib (- n 1))
                (fib (- n 2))))))
 
-(print (map fib (range 1 20)))
+(listprint (map fib (range 1 20)))

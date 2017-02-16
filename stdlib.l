@@ -2,6 +2,10 @@
 (define car (lambda (z) (z (lambda (p q) p))))
 (define cdr (lambda (z) (z (lambda (p q) q))))
 
+(define listprint
+  (lambda (l)
+    (map (lambda (x) (print x)) l)))
+
 (define identity (lambda (x) x))
 (define positive? (lambda (x) (> x 0)))
 (define negative? (lambda (x) (< x 0)))
@@ -21,7 +25,7 @@
        (repeat token (- number 1))))))
 
 (define pow (lambda (b e) (reduce (lambda (a b) (* a b)) (repeat b e))))
-(define range (lambda (a b) (if (>= a b) (list) (+ (list a) (range (+ a 1) b)))))
+(define range (lambda (a b) (if (>= a b) (list) (cons a (range (+ a 1) b)))))
 (define do (lambda () (last ...)))
 
 

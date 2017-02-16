@@ -8,7 +8,7 @@
 (taildefn fib-seq-iter (a b predicate acc)
     (if (not (predicate a))
         acc
-        (fib-seq-iter (+ a b) a predicate (append acc a))))
+        (fib-seq-iter (+ a b) a predicate (cons a acc))))
 
 (defn fib-seq (predicate) (fib-seq-iter 1 0 predicate (list)))
 
